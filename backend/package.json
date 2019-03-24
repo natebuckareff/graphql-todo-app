@@ -1,0 +1,16 @@
+{
+    "name": "backend",
+    "private": true,
+    "devDependencies": {
+        "nodemon": "^1.18.10",
+        "ts-node": "^8.0.3",
+        "typescript": "^3.3.4000"
+    },
+    "scripts": {
+        "start": "nodemon -L --exec ts-node src/index.ts"
+    },
+    "dependencies": {
+        "apollo-server": "^2.4.8",
+        "graphql": "^14.1.1"
+    }
+}

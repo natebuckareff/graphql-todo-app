@@ -3,21 +3,21 @@
     "private": true,
     "devDependencies": {
         "@graphql-codegen/cli": "^1.0.3",
-        "apollo": "^2.6.2",
-        "graphql": "^14.1.1",
+        "@graphql-codegen/typescript": "1.0.3",
+        "@graphql-codegen/typescript-resolvers": "1.0.3",
+        "concurrently": "^4.1.0",
         "nodemon": "^1.18.10",
         "ts-node": "^8.0.3",
-        "typescript": "^3.3.4000",
-        "@graphql-codegen/typescript": "1.0.3",
-        "@graphql-codegen/typescript-resolvers": "1.0.3"
+        "typescript": "^3.3.4000"
     },
     "scripts": {
-        "start": "npm run nodemon & npm run codegen",
+        "start": "concurrently \"npm:nodemon\" \"npm:codegen-watch\"",
         "nodemon": "nodemon -L --exec ts-node src/index.ts",
         "codegen": "graphql-codegen --config codegen.yml",
-        "codegen:watch": "nodemon --exec 'npm run codegen'"
+        "codegen-watch": "nodemon -L --watch codegen.yml --watch src/schema.graphql --exec npm run codegen"
     },
     "dependencies": {
+        "graphql": "^14.1.1",
         "apollo-server": "^2.4.8"
     }
 }

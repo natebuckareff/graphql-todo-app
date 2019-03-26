@@ -1,16 +1,14 @@
-version: '3'
+version: "3"
 services:
     backend:
         build: ./backend
         ports:
-            - '5000:5000'
+            - "5000:5000"
         volumes:
             - ./backend/src:/usr/src/app/src
 
     postgres:
         image: postgres:11-alpine
-        ports:
-            - '5432:5432'
         environment:
             - POSTGRES_DB
             - POSTGRES_USER

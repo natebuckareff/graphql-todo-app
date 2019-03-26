@@ -1,0 +1,24 @@
+type User {
+    id: ID!
+    name: String
+    lists: [List]
+}
+
+type List {
+    id: ID!
+    owner: User
+    items: [Item]
+}
+
+type Item {
+    id: ID!
+    list: List
+    completed: Boolean
+    content: String
+}
+
+type Query {
+    users: [User]
+    getUser(id: ID!): User
+    findUser(contains: String): [User]
+}

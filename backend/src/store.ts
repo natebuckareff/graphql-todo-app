@@ -33,3 +33,10 @@ export function getItem(collection: string, id: string): any {
         return record && { ...record, id };
     }
 }
+
+export function setItem(collection: string, id: string, value: any): void {
+    const records = STORE[collection];
+    if (records) {
+        records[id] = value;
+    }
+}

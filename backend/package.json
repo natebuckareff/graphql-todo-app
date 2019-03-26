@@ -12,8 +12,10 @@
         "@graphql-codegen/typescript-resolvers": "1.0.3"
     },
     "scripts": {
-        "start": "nodemon -L --exec ts-node src/index.ts",
-        "codegen": "graphql-codegen --config codegen.yml"
+        "start": "npm run nodemon & npm run codegen",
+        "nodemon": "nodemon -L --exec ts-node src/index.ts",
+        "codegen": "graphql-codegen --config codegen.yml",
+        "codegen:watch": "nodemon --exec 'npm run codegen'"
     },
     "dependencies": {
         "apollo-server": "^2.4.8"

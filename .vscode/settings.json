@@ -1,0 +1,17 @@
+{
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "javascript.validate.enable": false,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.formatOnSave": true,
+    "prettier.trailingComma": "all",
+    "prettier.singleQuote": true,
+    "prettier.jsxBracketSameLine": true,
+    "prettier.tabWidth": 4,
+    "prettier.ignorePath": ".vscode/.prettierignore",
+    "search.exclude": {
+        "**/.git": true,
+        "**/node_modules": true
+    }
+}

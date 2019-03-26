@@ -16,4 +16,5 @@ Go to http://localhost:5000/.
 - [ ] Mutations
 - [ ] Setup repo secrets management
 - [ ] Postgres schema and deciding on an ORM
+- [ ] Redis caching for fun and profit
 - [ ] MVP frontend

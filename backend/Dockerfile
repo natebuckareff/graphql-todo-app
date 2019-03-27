@@ -5,4 +5,4 @@ copy package*.json ./
 run npm i
 copy ./src .
 copy ./codegen.yml .
-cmd ["npm", "start"]
+cmd ["npm", "run", "nodemon"]

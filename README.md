@@ -8,6 +8,11 @@ Ensure docker and docker-compose are installed
 
     docker-compose up --build
 
+In a seperate terminal
+
+    cd backend
+    npm run codegen-watch
+
 Go to http://localhost:5000/.
 
 ## Todo
@@ -16,5 +21,6 @@ Go to http://localhost:5000/.
 - [ ] Mutations
 - [ ] Setup repo secrets management
 - [ ] Postgres schema and deciding on an ORM
+- [ ] Improve DX with npm and docker-compose
 - [ ] Redis caching for fun and profit
 - [ ] MVP frontend

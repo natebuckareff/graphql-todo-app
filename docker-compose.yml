@@ -4,6 +4,10 @@ services:
         build: ./backend
         ports:
             - '5000:5000'
+        environment:
+            - POSTGRES_DB
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
         volumes:
             - ./backend/gen:/usr/src/app/gen
             - ./backend/src:/usr/src/app/src

@@ -1,6 +1,6 @@
-import { DatabasePoolConnectionType, sql } from 'slonik';
+import { DatabasePoolConnectionType } from 'slonik';
 import { Resolvers } from '../gen/graphql';
-import { User, TodoList, TodoItem } from './store';
+import { User, TodoList, TodoItem } from './orm';
 
 interface Context {
     connection: DatabasePoolConnectionType;

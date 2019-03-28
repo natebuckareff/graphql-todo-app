@@ -1,42 +1,6 @@
+import * as dsz from './deserialize';
 import * as schema from '../gen/graphql';
 import { sql, CommonQueryMethodsType } from 'slonik';
-
-function isType<T>(type: string, value: any): T {
-    if (typeof value === type) {
-        return value;
-    }
-    throw new Error(`Expected ${type}`);
-}
-
-const isBoolean = (x: any) => isType<boolean>('boolean', x);
-const isString = (x: any) => isType<string>('string', x);
-const isNumber = (x: any) => isType<number>('number', x);
-
-function isID(value: any): string {
-    if (typeof value === 'string' || typeof value === 'number') {
-        return value + '';
-    }
-    throw new Error('Expected string or number');
-}
-
-function isInstance<T>(ctor: new () => T, value?: any): T {
-    if (value instanceof ctor) {
-        return value;
-    }
-    throw new Error(`Expected instance of '${ctor.name}`);
-}
-
-function isArray<T>(predicate: (value: any) => T, values: any[]): T[] {
-    return values.map(x => predicate(x));
-}
-
-function isMaybe<T>(predicate: (value: any) => T, value: any): T | null {
-    if (Object.is(value, null) || Object.is(value, undefined)) {
-        return null;
-    } else {
-        return predicate(value);
-    }
-}
 
 export class User implements schema.User {
     private _id: string;
@@ -44,10 +8,10 @@ export class User implements schema.User {
     private _lists: any[];
 
     constructor(object?: any) {
-        this._id = isID(object.id);
-        this._name = isMaybe(isString, object.name);
-        this._lists = isMaybe(
-            x => isArray(x => isInstance(TodoList, x), x),
+        this._id = dsz.isID(object.id);
+        this._name = dsz.isMaybe(dsz.isString, object.name);
+        this._lists = dsz.isMaybe(
+            x => dsz.isArray(x => dsz.isInstance(TodoList, x), x),
             object.lists,
         );
     }
@@ -94,10 +58,10 @@ export class TodoList implements schema.TodoList {
     private _items: any[];
 
     constructor(object?: any) {
-        this._id = isID(object.id);
-        this._owner = isMaybe(x => isInstance(User, x), object.owner);
-        this._items = isMaybe(
-            x => isArray(x => isInstance(TodoItem, x), x),
+        this._id = dsz.isID(object.id);
+        this._owner = dsz.isMaybe(x => dsz.isInstance(User, x), object.owner);
+        this._items = dsz.isMaybe(
+            x => dsz.isArray(x => dsz.isInstance(TodoItem, x), x),
             object.items,
         );
     }
@@ -107,7 +71,7 @@ export class TodoList implements schema.TodoList {
             sql`select * from "TodoList" where id = ${id}`,
         );
         const user = await q.one(
-            sql`select * from "User" where id = ${isID(list.owner)}`,
+            sql`select * from "User" where id = ${dsz.isID(list.owner)}`,
         );
         return new TodoList({ ...list, owner: new User(user) });
     }
@@ -139,10 +103,10 @@ export class TodoItem implements schema.TodoItem {
     private _content: string;
 
     constructor(object?: any) {
-        this._id = isID(object.id);
-        this._list = isInstance(TodoList, object.list);
-        this._completed = isBoolean(object.completed);
-        this._content = isString(object.content);
+        this._id = dsz.isID(object.id);
+        this._list = dsz.isInstance(TodoList, object.list);
+        this._completed = dsz.isBoolean(object.completed);
+        this._content = dsz.isString(object.content);
     }
 
     static async getByID(q: CommonQueryMethodsType, id: string) {
@@ -150,7 +114,7 @@ export class TodoItem implements schema.TodoItem {
             sql`select * from "TodoItem" where id = ${id}`,
         );
         const list = await q.one(
-            sql`select * from "TodoList" where id = ${isString(item.list)}`,
+            sql`select * from "TodoList" where id = ${dsz.isString(item.list)}`,
         );
         return new TodoItem({ ...item, list: new TodoList(list) });
     }

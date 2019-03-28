@@ -4,6 +4,8 @@ Toy todo list app for learning GraphQL and Apollo.
 
 ## Quick Start
 
+Rename `.env.example` to `.env` and change the secrets to something sane
+
 Ensure docker and docker-compose are installed
 
     docker-compose up --build

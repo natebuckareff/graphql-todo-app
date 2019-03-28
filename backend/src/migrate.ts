@@ -1,32 +1,41 @@
 import pool from './pool';
+import * as fs from 'fs';
+import * as path from 'path';
 import { DatabasePoolConnectionType } from 'slonik';
-import { join } from 'path';
-import { readdirSync } from 'fs';
 
-const MIGRATIONS_DIR = 'src/migrations';
+const MIGRATIONS_DIR = './src/migrations';
 
-async function up(connection: DatabasePoolConnectionType, name: string) {
-    const module = await import(join(MIGRATIONS_DIR, name));
+function importMigration(filename: string) {
+    const [name] = filename.split('.');
+    return require(path.resolve(process.cwd(), MIGRATIONS_DIR, name));
+}
+
+function listMigrations(ascending: boolean = true) {
+    const migrations = fs.readdirSync(MIGRATIONS_DIR);
+    migrations.sort((a, b) =>
+        ascending ? a.localeCompare(b) : b.localeCompare(a),
+    );
+    return migrations;
+}
+
+async function up(connection: DatabasePoolConnectionType, filename: string) {
+    const module = importMigration(filename);
     connection.transaction(async tx => module.up(tx));
 }
 
-async function down(connection: DatabasePoolConnectionType, name: string) {
-    const module = await import(join(MIGRATIONS_DIR, name));
+async function down(connection: DatabasePoolConnectionType, filename: string) {
+    const module = importMigration(filename);
     connection.transaction(async tx => module.down(tx));
 }
 
 async function allUp(connection: DatabasePoolConnectionType) {
-    const migrations = readdirSync(MIGRATIONS_DIR);
-    migrations.sort((a, b) => a.localeCompare(b));
-    for (const migration of migrations) {
+    for (const migration of listMigrations()) {
         await up(connection, migration);
     }
 }
 
 async function allDown(connection: DatabasePoolConnectionType) {
-    const migrations = readdirSync(MIGRATIONS_DIR);
-    migrations.sort((a, b) => b.localeCompare(a));
-    for (const migration of migrations) {
+    for (const migration of listMigrations(true)) {
         await down(connection, migration);
     }
 }

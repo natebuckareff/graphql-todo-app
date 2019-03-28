@@ -19,6 +19,7 @@ Go to http://localhost:5000/.
 
 - [x] Setup dev environment with docker and basic queries
 - [ ] Mutations
+- [ ] Authentication
 - [ ] Setup repo secrets management
 - [ ] Postgres schema and deciding on an ORM
 - [ ] Improve DX with npm and docker-compose

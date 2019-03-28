@@ -23,8 +23,8 @@ export async function up(tx: DatabaseTransactionConnectionType) {
 
 export async function down(tx: DatabaseTransactionConnectionType) {
     await tx.query(sql`
-        drop table "User";
-        drop table "TodoList";
-        drop table "TodoItem";
+        drop table "User" cascade;
+        drop table "TodoList" cascade;
+        drop table "TodoItem" cascade;
     `);
 }

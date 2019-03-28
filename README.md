@@ -6,9 +6,10 @@ Toy todo list app for learning GraphQL and Apollo.
 
 Rename `.env.example` to `.env` and change the secrets to something sane
 
-Ensure docker and docker-compose are installed
+Ensure docker and docker-compose are installed and run migration
 
-    docker-compose up --build
+    npm run docker
+    npm run migrate:up
 
 In a seperate terminal
 
@@ -19,11 +20,11 @@ Go to http://localhost:5000/.
 
 ## Todo
 
-- [x] Setup dev environment with docker and basic queries
-- [ ] Mutations
-- [ ] Authentication
-- [ ] Setup repo secrets management
-- [ ] Postgres schema and deciding on an ORM
-- [ ] Improve DX with npm and docker-compose
-- [ ] Redis caching for fun and profit
-- [ ] MVP frontend
+-   [x] Setup dev environment with docker and basic queries
+-   [ ] Mutations
+-   [ ] Authentication
+-   [ ] Setup repo secrets management
+-   [ ] Postgres schema and deciding on an ORM
+-   [ ] Improve DX with npm and docker-compose
+-   [ ] Redis caching for fun and profit
+-   [ ] MVP frontend

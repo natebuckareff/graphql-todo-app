@@ -1,0 +1,14 @@
+{
+    "name": "graphql-todo-app",
+    "version": "1.0.0",
+    "description": "Toy todo list app for learning GraphQL and Apollo.",
+    "scripts": {
+        "docker": "docker-compose up --build",
+        "migrate:up": "docker exec graphql-todo-app_backend_1 /bin/sh -c \"npm run migrate:up\"",
+        "migrate:down": "docker exec graphql-todo-app_backend_1 /bin/sh -c \"npm run migrate:down\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/natebuckareff/graphql-todo-app.git"
+    }
+}

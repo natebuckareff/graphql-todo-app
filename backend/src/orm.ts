@@ -5,7 +5,7 @@ import { sql, CommonQueryMethodsType } from 'slonik';
 export class User implements schema.User {
     private _id: string;
     private _name: string | null;
-    private _lists: any[];
+    private _lists: any[] | null;
 
     constructor(object?: any) {
         this._id = dsz.isID(object.id);
@@ -17,7 +17,7 @@ export class User implements schema.User {
     }
 
     static async getAll(q: CommonQueryMethodsType) {
-        const r = await q.many(sql`select * from "User"`);
+        const r = await q.any(sql`select * from "User"`);
         return r.map(x => new User(x));
     }
 
@@ -54,8 +54,8 @@ export class User implements schema.User {
 
 export class TodoList implements schema.TodoList {
     private _id: string;
-    private _owner: User;
-    private _items: any[];
+    private _owner: User | null;
+    private _items: any[] | null;
 
     constructor(object?: any) {
         this._id = dsz.isID(object.id);

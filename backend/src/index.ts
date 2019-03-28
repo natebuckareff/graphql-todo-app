@@ -15,4 +15,4 @@ const server = new ApolloServer({
 
 server
     .listen({ port: 5000 })
-    .then(({ url }) => console.log(`Backend ready at ${url}`));
+    .then(({ url }: { url: String }) => console.log(`Backend ready at ${url}`));

@@ -1,5 +1,7 @@
 import { DatabasePoolType, DatabaseTransactionConnectionType } from 'slonik';
 
+export type Maybe<T> = T | null;
+
 export function transaction<R>(
     pool: DatabasePoolType,
     fn: (trx: DatabaseTransactionConnectionType) => Promise<R>,

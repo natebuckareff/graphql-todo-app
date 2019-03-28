@@ -1,7 +1,7 @@
 import * as schema from '../gen/graphql';
 import { DatabasePoolType } from 'slonik';
 import { User, TodoList, TodoItem } from './orm';
-import { transaction } from './util';
+import { transaction, Maybe } from './util';
 
 interface Context {
     pool: DatabasePoolType;
@@ -24,7 +24,7 @@ const resolvers: schema.Resolvers<Context> = {
         lists: (parent, _args, { pool }) => TodoList.getByOwner(pool, parent),
     },
     TodoList: {
-        owner: (parent, _args) => parent.owner,
+        owner: (parent, _args) => parent.owner as Maybe<User>,
         items: (parent, _args, { pool }) => TodoItem.getByList(pool, parent),
     },
     TodoItem: {

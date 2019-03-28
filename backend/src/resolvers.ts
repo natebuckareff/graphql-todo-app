@@ -1,24 +1,33 @@
-import { getItem, findItems } from './store';
+import { DatabasePoolConnectionType, sql } from 'slonik';
 import { Resolvers } from '../gen/graphql';
+import { User, TodoList, TodoItem } from './store';
 
-const resolvers: Resolvers = {
+interface Context {
+    connection: DatabasePoolConnectionType;
+}
+
+const resolvers: Resolvers<Context> = {
     Query: {
-        users: () => findItems('user'),
-        getUser: (_root, { id }) => getItem('user', id),
-        findUser: (_root, { contains }) =>
-            findItems('user', ({ name }: { name: string }) =>
-                name.includes(contains),
-            ),
+        users: async (_root, _args, { connection }) => User.getAll(connection),
+
+        getUser: async (_root, { id }, { connection }) =>
+            User.getByID(connection, id),
+
+        findUser: (_root, { contains }, { connection }) =>
+            User.getByName(connection, contains),
     },
     User: {
-        lists: parent => findItems('list', ({ id }) => id === parent.id),
+        lists: (parent, _args, { connection }) =>
+            TodoList.getByOwner(connection, parent),
     },
-    List: {
-        owner: parent => getItem('user', parent.owner.id),
-        items: parent => findItems('item', ({ list }) => list === parent.id),
+    TodoList: {
+        owner: (parent, _args) => parent.owner,
+        items: (parent, _args, { connection }) =>
+            TodoItem.getByList(connection, parent),
     },
-    Item: {
-        list: parent => getItem('list', parent.list.id),
+    TodoItem: {
+        list: (parent, _args, { connection }) =>
+            TodoList.getByID(connection, parent.list.id),
     },
 };
 

@@ -1,19 +1,22 @@
 import pool from './pool';
 import { DatabasePoolConnectionType } from 'slonik';
+import { join } from 'path';
 import { readdirSync } from 'fs';
 
+const MIGRATIONS_DIR = 'src/migrations';
+
 async function up(connection: DatabasePoolConnectionType, name: string) {
-    const module = await import(`./migrations/${name}`);
+    const module = await import(join(MIGRATIONS_DIR, name));
     connection.transaction(async tx => module.up(tx));
 }
 
 async function down(connection: DatabasePoolConnectionType, name: string) {
-    const module = await import(`./migrations/${name}`);
+    const module = await import(join(MIGRATIONS_DIR, name));
     connection.transaction(async tx => module.down(tx));
 }
 
 async function allUp(connection: DatabasePoolConnectionType) {
-    const migrations = readdirSync('./migrations');
+    const migrations = readdirSync(MIGRATIONS_DIR);
     migrations.sort((a, b) => a.localeCompare(b));
     for (const migration of migrations) {
         await up(connection, migration);
@@ -21,7 +24,7 @@ async function allUp(connection: DatabasePoolConnectionType) {
 }
 
 async function allDown(connection: DatabasePoolConnectionType) {
-    const migrations = readdirSync('./migrations');
+    const migrations = readdirSync(MIGRATIONS_DIR);
     migrations.sort((a, b) => b.localeCompare(a));
     for (const migration of migrations) {
         await down(connection, migration);

@@ -1,18 +1,18 @@
 type User {
     id: ID!
     name: String
-    lists: [List]
+    lists: [TodoList]
 }
 
-type List {
+type TodoList {
     id: ID!
     owner: User
-    items: [Item]
+    items: [TodoItem]
 }
 
-type Item {
+type TodoItem {
     id: ID!
-    list: List
+    list: TodoList
     completed: Boolean
     content: String
 }

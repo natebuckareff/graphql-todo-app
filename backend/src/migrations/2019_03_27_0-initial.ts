@@ -4,7 +4,16 @@ export async function up(tx: DatabaseTransactionConnectionType) {
     await tx.query(sql`
         create table "User" (
             id serial primary key,
-            name text not null
+            name text unique not null,
+            hash bytea not null,
+            salt bytea not null,
+            reps int4 not null
+        );
+
+        create table "Auth" (
+            id serial primary key,
+            "user" int not null references "User" (id),
+            token text not null
         );
 
         create table "TodoList" (
@@ -24,6 +33,7 @@ export async function up(tx: DatabaseTransactionConnectionType) {
 export async function down(tx: DatabaseTransactionConnectionType) {
     await tx.query(sql`
         drop table "User" cascade;
+        drop table "Auth" cascade;
         drop table "TodoList" cascade;
         drop table "TodoItem" cascade;
     `);

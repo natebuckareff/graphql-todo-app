@@ -20,5 +20,9 @@ type TodoItem {
 type Query {
     users: [User]
     getUser(id: ID!): User
-    findUser(contains: String): [User]
+    findUser(contains: String!): [User]
+}
+
+type Mutation {
+    register(name: String!, password: String!): User
 }

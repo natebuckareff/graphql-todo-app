@@ -1,6 +1,23 @@
 import * as dsz from './deserialize';
 import * as schema from '../gen/graphql';
+import * as crypto from 'crypto';
+import { promisify } from 'util';
 import { sql, CommonQueryMethodsType } from 'slonik';
+
+const pbkdf2 = promisify(crypto.pbkdf2);
+
+type HashedPassword = {
+    hash: Buffer;
+    salt: Buffer;
+    reps: number;
+};
+
+async function hashPassword(password: string): Promise<HashedPassword> {
+    const salt = crypto.pseudoRandomBytes(32);
+    const reps = 69105;
+    const hash = await pbkdf2(password, salt, reps, 64, 'SHA512');
+    return { hash, salt, reps };
+}
 
 export class User implements schema.User {
     private _id: string;
@@ -13,6 +30,25 @@ export class User implements schema.User {
         this._lists = dsz.isMaybe(
             x => dsz.isArray(x => dsz.isInstance(TodoList, x), x),
             object.lists,
+        );
+    }
+
+    static async create(
+        q: CommonQueryMethodsType,
+        name: string,
+        password: string,
+    ) {
+        const { reps, ...hashedPassword } = await hashPassword(password);
+        const hash = hashedPassword.hash.toString('hex');
+        const salt = hashedPassword.salt.toString('hex');
+        return new User(
+            await q.one(
+                sql`
+                    insert into "User" (id, name, hash, salt, reps)
+                    values (default, ${name}, ${hash}, ${salt}, ${reps})
+                    returning *
+                `,
+            ),
         );
     }
 

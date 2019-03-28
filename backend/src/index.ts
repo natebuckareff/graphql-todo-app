@@ -10,7 +10,7 @@ const typeDefs = gql(
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: { connection: pool },
+    context: { pool },
 });
 
 server

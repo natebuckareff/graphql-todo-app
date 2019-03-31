@@ -18,6 +18,13 @@ export function isID(value: any): string {
     throw new Error('Expected string or number');
 }
 
+export function isBuffer(value: any): Buffer {
+    if (Buffer.isBuffer(value)) {
+        return value;
+    }
+    throw new Error('Expected buffer');
+}
+
 export function isInstance<T>(ctor: new () => T, value?: any): T {
     if (value instanceof ctor) {
         return value;

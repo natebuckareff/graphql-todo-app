@@ -1,6 +1,7 @@
 import * as schema from '../gen/graphql';
 import { DatabaseConnectionType } from 'slonik';
 import { User, TodoList, TodoItem } from './orm';
+import { createAccessToken } from './auth';
 import { transaction, Maybe } from './util';
 
 interface Context {
@@ -9,11 +10,11 @@ interface Context {
 
 const resolvers: schema.Resolvers<Context> = {
     Query: {
+        login: async (_root, { name, password }, { con }) =>
+            createAccessToken(con, name, password),
+
         users: async (_root, _args, { con }) => User.getAll(con),
         getUser: async (_root, { id }, { con }) => User.getByID(con, id),
-
-        findUser: (_root, { contains }, { con }) =>
-            User.getByName(con, contains),
     },
     Mutation: {
         register: async (_root, { name, password }, { con }) =>

@@ -24,4 +24,7 @@ app.use('/', (_req, res, next) =>
 );
 
 server.applyMiddleware({ app, path: '/graphql' });
-app.listen(5000);
+
+app.listen({ port: 5000 }, () =>
+    console.log(`Ready at http://localhost:5000${server.graphqlPath}`),
+);

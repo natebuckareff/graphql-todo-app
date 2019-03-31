@@ -1,17 +1,16 @@
-import { DatabasePoolType, DatabaseTransactionConnectionType } from 'slonik';
+import {
+    DatabaseTransactionConnectionType,
+    DatabaseConnectionType,
+} from 'slonik';
 
 export type Maybe<T> = T | null;
 
 export function transaction<R>(
-    pool: DatabasePoolType,
+    con: DatabaseConnectionType,
     fn: (trx: DatabaseTransactionConnectionType) => Promise<R>,
 ): Promise<R> {
     return new Promise((resolve, reject) => {
-        pool.connect(connection => {
-            return connection.transaction(trx => {
-                return fn(trx);
-            });
-        })
+        con.transaction(fn)
             .then(r => resolve(r as R))
             .catch(reject);
     });

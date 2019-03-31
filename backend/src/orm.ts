@@ -1,23 +1,7 @@
 import * as dsz from './deserialize';
 import * as schema from '../gen/graphql';
-import * as crypto from 'crypto';
-import { promisify } from 'util';
+import { createHashedPassword } from './auth';
 import { sql, CommonQueryMethodsType } from 'slonik';
-
-const pbkdf2 = promisify(crypto.pbkdf2);
-
-type HashedPassword = {
-    hash: Buffer;
-    salt: Buffer;
-    reps: number;
-};
-
-async function hashPassword(password: string): Promise<HashedPassword> {
-    const salt = crypto.pseudoRandomBytes(32);
-    const reps = 69105;
-    const hash = await pbkdf2(password, salt, reps, 64, 'SHA512');
-    return { hash, salt, reps };
-}
 
 export class User implements schema.User {
     private _id: string;
@@ -38,14 +22,22 @@ export class User implements schema.User {
         name: string,
         password: string,
     ) {
-        const { reps, ...hashedPassword } = await hashPassword(password);
+        const { reps, ...hashedPassword } = await createHashedPassword(
+            password,
+        );
         const hash = hashedPassword.hash.toString('hex');
         const salt = hashedPassword.salt.toString('hex');
         return new User(
             await q.one(
                 sql`
                     insert into "User" (id, name, hash, salt, reps)
-                    values (default, ${name}, ${hash}, ${salt}, ${reps})
+                    values (
+                        default,
+                        ${name},
+                        decode(${hash}, 'hex'),
+                        decode(${salt}, 'hex'),
+                        ${reps}
+                    )
                     returning *
                 `,
             ),
@@ -58,16 +50,15 @@ export class User implements schema.User {
     }
 
     static async getByID(q: CommonQueryMethodsType, id: string) {
-        return new User(
-            await q.one(sql`select * from "User" where id = ${id}`),
-        );
+        const r = await q.maybeOne(sql`select * from "User" where id = ${id}`);
+        return r && new User(r);
     }
 
     static async getByName(q: CommonQueryMethodsType, name: string) {
-        const r = await q.any(
-            sql`select * from "User" where name like ${'%' + name + '%'}`,
+        const r = await q.maybeOne(
+            sql`select * from "User" where name = ${name}`,
         );
-        return r.map(x => new User(x));
+        return r && new User(r);
     }
 
     get id() {

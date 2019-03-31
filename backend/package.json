@@ -7,6 +7,7 @@
         "@graphql-codegen/typescript-resolvers": "^1.0.6",
         "@types/express": "^4.16.1",
         "@types/graphql": "^14.2.0",
+        "@types/jsonwebtoken": "^8.3.2",
         "@types/node": "^11.12.2",
         "@types/slonik": "^15.4.0",
         "nodemon": "^1.18.10",
@@ -18,13 +19,16 @@
         "codegen": "graphql-codegen --config codegen.yml",
         "codegen-watch": "nodemon -L --watch codegen.yml --watch src/schema.graphql --exec npm run codegen",
         "migrate:up": "ts-node src/migrate.ts up",
-        "migrate:down": "ts-node src/migrate.ts down"
+        "migrate:down": "ts-node src/migrate.ts down",
+        "keygen:private": "openssl ecparam -genkey -name secp521r1 -noout -out ./keys/ecdsa-p521-private.pem",
+        "keygen:public": "openssl ec -in ./keys/ecdsa-p521-private.pem -pubout -out ./keys/ecdsa-p521-public.pem"
     },
     "dependencies": {
         "apollo-server": "^2.4.8",
         "apollo-server-express": "^2.4.8",
         "express": "^4.16.4",
         "graphql": "^14.2.0",
+        "jsonwebtoken": "^8.5.1",
         "slonik": "^16.10.0"
     }
 }

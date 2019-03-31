@@ -18,9 +18,9 @@ type TodoItem {
 }
 
 type Query {
+    login(name: String!, password: String!): String
     users: [User]
     getUser(id: ID!): User
-    findUser(contains: String!): [User]
 }
 
 type Mutation {

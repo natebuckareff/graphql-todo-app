@@ -9,8 +9,8 @@ import { transaction } from './util';
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 
-const PRIVATE_KEY = fs.readFileSync(
-    path.resolve(process.cwd(), 'keys/ecdsa-p521-private.pem'),
+const SECRET_KEY = fs.readFileSync(
+    path.resolve(`/run/secrets/backend_accesstoken_keyfile`),
     { encoding: 'utf8' },
 );
 
@@ -37,15 +37,47 @@ export function hashPassword(
     return pbkdf2(password, salt, reps, 64, 'SHA512');
 }
 
-export async function createAccessToken(
+async function sign(payload: any): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const opts = {
+            algorithm: 'HS256',
+            expiresIn: '24h',
+        };
+        jwt.sign(payload, SECRET_KEY, opts, (err, token) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(token);
+        });
+    });
+}
+
+async function verify(token: string): Promise<string | object> {
+    return new Promise((resolve, reject) => {
+        jwt.verify(
+            token,
+            SECRET_KEY,
+            { algorithms: ['HS256'] },
+            (err, decoded) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(decoded);
+            },
+        );
+    });
+}
+
+export function createAccessToken(
     con: DatabaseConnectionType,
     name: string,
     password: string,
 ): Promise<string> {
     return transaction(con, async trx => {
         const r = await trx.maybeOne(sql`
-            select id, hash, salt, reps
+            select "User".id as id, hash, salt, reps
             from "User"
+            join "Auth" on "Auth".id = "User".auth
             where name = ${name}
         `);
         if (r === null) {
@@ -62,9 +94,10 @@ export async function createAccessToken(
         }
 
         const id = isID(r.id);
-        return jwt.sign({ id }, PRIVATE_KEY, {
-            algorithm: 'HS256',
-            expiresIn: '24h',
-        });
+        return sign({ id });
     });
+}
+
+export function verifyAccessToken(token: string): Promise<string | object> {
+    return verify(token);
 }

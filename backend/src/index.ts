@@ -11,7 +11,10 @@ const typeDefs = gql(
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ res }) => ({ con: res.locals.con }),
+    context: ({ req, res }) => ({
+        auth: req.headers.authorization,
+        con: res.locals.con,
+    }),
 });
 
 const app = express();

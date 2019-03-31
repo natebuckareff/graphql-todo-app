@@ -2,18 +2,17 @@ import { DatabaseTransactionConnectionType, sql } from 'slonik';
 
 export async function up(tx: DatabaseTransactionConnectionType) {
     await tx.query(sql`
-        create table "User" (
+        create table "Auth" (
             id serial primary key,
-            name text unique not null,
             hash bytea not null,
             salt bytea not null,
             reps int4 not null
         );
 
-        create table "Auth" (
+        create table "User" (
             id serial primary key,
-            "user" int not null references "User" (id),
-            token text not null
+            auth int not null references "Auth" (id),
+            name text unique not null
         );
 
         create table "TodoList" (

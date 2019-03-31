@@ -17,6 +17,15 @@ type TodoItem {
     content: String
 }
 
+input CreateTodoList {
+    items: [CreateTodoItem]
+}
+
+input CreateTodoItem {
+    completed: Boolean
+    content: String
+}
+
 type Query {
     login(name: String!, password: String!): String
     users: [User]
@@ -25,4 +34,5 @@ type Query {
 
 type Mutation {
     register(name: String!, password: String!): User
+    createList(list: CreateTodoList): TodoList
 }

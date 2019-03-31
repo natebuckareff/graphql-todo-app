@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
     backend:
         build: ./backend
@@ -8,6 +8,9 @@ services:
             - POSTGRES_DB
             - POSTGRES_USER
             - POSTGRES_PASSWORD
+            - BACKEND_ACCESSTOKEN_SECRET_KEYFILE
+        secrets:
+            - backend_accesstoken_keyfile
         volumes:
             - ./backend/gen:/usr/src/app/gen
             - ./backend/src:/usr/src/app/src
@@ -20,6 +23,10 @@ services:
             - POSTGRES_PASSWORD
         volumes:
             - pgdata:/var/lib/postgresql/data
+
+secrets:
+    backend_accesstoken_keyfile:
+        file: './backend/keys/ecdsa-p521-secret.pem'
 
 volumes:
     pgdata: {}

@@ -22,22 +22,20 @@ export class User implements schema.User {
         name: string,
         password: string,
     ) {
-        const { reps, ...hashedPassword } = await createHashedPassword(
-            password,
-        );
+        const hashedPassword = await createHashedPassword(password);
         const hash = hashedPassword.hash.toString('hex');
         const salt = hashedPassword.salt.toString('hex');
+        const { reps } = hashedPassword;
+        const auth = await q.one(sql`
+            insert into "Auth" (id, hash, salt, reps)
+            values (default, decode(${hash}, 'hex'), decode(${salt}, 'hex'), ${reps})
+            returning id
+        `);
         return new User(
             await q.one(
                 sql`
-                    insert into "User" (id, name, hash, salt, reps)
-                    values (
-                        default,
-                        ${name},
-                        decode(${hash}, 'hex'),
-                        decode(${salt}, 'hex'),
-                        ${reps}
-                    )
+                    insert into "User" (auth, name)
+                    values (${auth.id}, ${name})
                     returning *
                 `,
             ),

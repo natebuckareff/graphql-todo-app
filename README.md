@@ -24,14 +24,15 @@ Go to http://localhost:5000/.
 
 ## Todo
 
-- [x] Setup dev environment with docker and basic queries
 - [ ] Mutations
-- [x] User registration and login
-- [x] Basic authentication
 - [ ] Authenticated resolvers
 - [ ] Setup repo secrets management
-- [x] Postgres schema and deciding on an ORM
 - [ ] Refactor ORM into individual models
 - [ ] Improve DX with npm and docker-compose
+    - [ ] Parameterize container names
 - [ ] Redis caching for fun and profit
 - [ ] MVP frontend
+- [x] ~~Setup dev environment with docker and basic queries~~
+- [x] ~~User registration and login~~
+- [x] ~~Basic authentication~~
+- [x] ~~Postgres schema and deciding on an ORM~~

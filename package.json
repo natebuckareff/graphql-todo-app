@@ -6,7 +6,7 @@
         "docker-compose:up": "docker-compose up --build",
         "migrate:up": "docker exec graphql-todo-app_backend_1 npm run migrate:up",
         "migrate:down": "docker exec graphql-todo-app_backend_1 npm run migrate:down",
-        "psql": "docker exec -it graphql-todo-app_backend_1 sh -c \"psql -U \\$POSTGRES_USER \\$POSTGRES_DB\""
+        "psql": "docker exec -it graphql-todo-app_postgres_1 sh -c \"psql -U \\$POSTGRES_USER \\$POSTGRES_DB\""
     },
     "repository": {
         "type": "git",

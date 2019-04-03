@@ -1,26 +1,22 @@
 import * as schema from '../gen/graphql';
+import TodoItem from './orm/TodoItem';
+import TodoList from './orm/TodoList';
+import User from './orm/User';
 import { DatabaseConnectionType } from 'slonik';
-import { User, TodoList, TodoItem } from './orm';
-import { createAccessToken, verifyAccessToken } from './auth';
+import { createAccessToken } from './auth';
 import { transaction, Maybe } from './util';
 
-interface Context {
-    auth: string;
+export interface Context {
     con: DatabaseConnectionType;
+    access?: any;
 }
 
 function auth<TResult, TParent, TArgs>(
     resolver: schema.ResolverFn<TResult, TParent, Context, TArgs>,
 ): schema.ResolverFn<TResult, TParent, Context, TArgs> {
-    return async (parent, args, context, info) => {
-        const [prefix, token] = context.auth.split(' ');
-        if (prefix !== 'Bearer') {
-            throw new Error('Invalid Bearer Authorization header');
-        }
-        try {
-            await verifyAccessToken(token);
-        } catch {
-            throw new Error('Failed to verify access token');
+    return (parent, args, context, info) => {
+        if (context.access) {
+            throw new Error('Unauthorized request');
         }
         return resolver(parent, args, context, info);
     };
@@ -38,7 +34,7 @@ const resolvers: schema.Resolvers<Context> = {
         register: async (_root, { name, password }, { con }) =>
             transaction(con, trx => User.create(trx, name, password)),
 
-        createList: auth(_root => {
+        createList: auth((_root, { list }) => {
             return null;
         }),
     },

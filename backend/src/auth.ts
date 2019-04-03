@@ -20,6 +20,10 @@ export type HashedPassword = {
     reps: number;
 };
 
+export type AccessToken = {
+    uid: string;
+};
+
 export async function createHashedPassword(
     password: string,
 ): Promise<HashedPassword> {
@@ -98,6 +102,10 @@ export function createAccessToken(
     });
 }
 
-export function verifyAccessToken(token: string): Promise<string | object> {
-    return verify(token);
+export async function verifyAccessToken(token: string): Promise<AccessToken> {
+    const decoded = await verify(token);
+    if (typeof decoded === 'string') {
+        throw new Error('Invalid access token');
+    }
+    return decoded as AccessToken;
 }

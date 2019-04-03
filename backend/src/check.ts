@@ -1,5 +1,14 @@
 export type Check<R> = (value: any) => R;
 
+export function guard<R>(test: (value: any) => boolean): Check<R> {
+    return (value: any) => {
+        if (test(value)) {
+            return value;
+        }
+        throw new Error(`Gaurd failed for '${value}`);
+    };
+}
+
 export function is<R>(test: any): Check<R> {
     return (value: any) => {
         if (Object.is(value, test)) {

@@ -1,9 +1,9 @@
+import * as ck from './check';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as path from 'path';
 import { DatabaseConnectionType, sql } from 'slonik';
-import { isNumber, isBuffer, isID } from './deserialize';
 import { promisify } from 'util';
 import { transaction } from './util';
 
@@ -88,17 +88,17 @@ export function createAccessToken(
             throw new Error('Authentication failed');
         }
 
-        const salt = isBuffer(r.salt);
-        const reps = isNumber(r.reps);
-        const hashChallenge = isBuffer(r.hash);
+        const salt = ck.guard<Buffer>(x => Buffer.isBuffer(x))(r.salt);
+        const reps = ck.number(r.reps);
+        const hashChallenge = ck.guard<Buffer>(x => Buffer.isBuffer(x))(r.hash);
         const hashResponse = await hashPassword(password, salt, reps);
 
         if (!hashChallenge.equals(hashResponse)) {
             throw new Error('Authentication failed');
         }
 
-        const id = isID(r.id);
-        return sign({ id });
+        const uid = ck.union(ck.number, ck.string)(r.id) + '';
+        return sign({ uid } as AccessToken);
     });
 }
 

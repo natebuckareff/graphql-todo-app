@@ -1,21 +1,21 @@
 import * as schema from '../gen/graphql';
-import TodoItem from './orm/TodoItem';
-import TodoList from './orm/TodoList';
-import User from './orm/User';
 import { DatabaseConnectionType } from 'slonik';
-import { createAccessToken } from './auth';
-import { transaction, Maybe } from './util';
+import { createAccessToken, AccessToken } from './auth';
+import { createTodoList, getTodoListByOwner } from './orm/TodoList';
+import { createUser, getAllUsers, getUserByID } from './orm/User';
+import { getTodoItemByList } from './orm/TodoItem';
+import { transaction } from './util';
 
 export interface Context {
     con: DatabaseConnectionType;
-    access?: any;
+    access?: AccessToken;
 }
 
 function auth<TResult, TParent, TArgs>(
     resolver: schema.ResolverFn<TResult, TParent, Context, TArgs>,
 ): schema.ResolverFn<TResult, TParent, Context, TArgs> {
     return (parent, args, context, info) => {
-        if (context.access) {
+        if (!context.access) {
             throw new Error('Unauthorized request');
         }
         return resolver(parent, args, context, info);
@@ -24,30 +24,55 @@ function auth<TResult, TParent, TArgs>(
 
 const resolvers: schema.Resolvers<Context> = {
     Query: {
-        login: async (_root, { name, password }, { con }) =>
+        login: (_root, { name, password }, { con }) =>
             createAccessToken(con, name, password),
 
-        users: async (_root, _args, { con }) => User.getAll(con),
-        getUser: async (_root, { id }, { con }) => User.getByID(con, id),
-    },
-    Mutation: {
-        register: async (_root, { name, password }, { con }) =>
-            transaction(con, trx => User.create(trx, name, password)),
+        users: async (_root, _args, { con }) =>
+            transaction(con, trx => getAllUsers(trx)),
 
-        createList: auth((_root, { list }) => {
-            return null;
+        getUser: async (_root, { id }, { con }) =>
+            transaction(con, trx => getUserByID(trx, id)),
+    },
+
+    Mutation: {
+        register: async (_root, { name, password }, { con }) => {
+            const user = await transaction(con, trx =>
+                createUser(trx, { name, password }),
+            );
+            return {
+                id: user.id,
+                name: user.name,
+            };
+        },
+
+        createList: auth(async (_root, { list }, { con, access }) => {
+            const r = await transaction(con, trx =>
+                createTodoList(trx, {
+                    owner: access!.uid,
+                    items: list.items,
+                }),
+            );
+            return {
+                id: r.id,
+                items: await getTodoItemByList(con, r.id),
+            };
         }),
     },
+
     User: {
-        lists: (parent, _args, { con }) => TodoList.getByOwner(con, parent),
+        lists: auth(async (parent, _args, { con, access }) => {
+            if (parent.id !== access!.uid) {
+                throw new Error('Unauthorized request');
+            }
+            return (await getTodoListByOwner(con, parent.id)).map(({ id }) => ({
+                id,
+            }));
+        }),
     },
+
     TodoList: {
-        owner: (parent, _args) => parent.owner as Maybe<User>,
-        items: (parent, _args, { con }) => TodoItem.getByList(con, parent),
-    },
-    TodoItem: {
-        list: (parent, _args, { con }) =>
-            TodoList.getByID(con, parent.list!.id),
+        owner: (parent, _args, { con }) => getUserByID(con, parent.owner!.id),
+        items: (parent, _args, { con }) => getTodoItemByList(con, parent.id),
     },
 };
 

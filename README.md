@@ -14,6 +14,7 @@ Generate private key for signing access tokens and generate types from the
 GraphQL schema file:
 
     cd backend
+    npm i
     npm run keygen
     npm run codegen:watch
 

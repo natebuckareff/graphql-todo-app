@@ -28,13 +28,13 @@ Go to http://localhost:5000/.
 
 ## Todo
 
-- [ ] Mutations
 - [ ] Setup repo secrets management
-- [ ] Refactor ORM into individual models
-- [ ] Improve DX with npm and docker-compose
-    - [ ] Parameterize container names
 - [ ] Redis caching for fun and profit
 - [ ] MVP frontend
+- [x] ~~Mutations~~
+- [x] ~~Refactor ORM into individual models~~
+- [x] ~~Improve DX with npm and docker-compose~~
+    - [x] ~~Parameterize container names~~
 - [x] ~~Authenticated resolvers~~
 - [x] ~~Better key management~~
 - [x] ~~Setup dev environment with docker and basic queries~~

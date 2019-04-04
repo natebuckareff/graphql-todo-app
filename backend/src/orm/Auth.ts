@@ -24,4 +24,13 @@ export default class Auth extends Entity {
     get reps() {
         return this._reps;
     }
+
+    encode(): any {
+        return {
+            ...super.encode(),
+            hash: this.hash.toString('hex'),
+            salt: this.salt.toString('hex'),
+            reps: this.reps,
+        };
+    }
 }

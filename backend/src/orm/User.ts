@@ -1,5 +1,6 @@
 import * as ck from '../check';
-import Entity from './Entity';
+import Auth from './Auth';
+import Entity, { makeRef } from './Entity';
 import { CommonQueryMethodsType, sql } from 'slonik';
 import { createHashedPassword } from '../auth';
 
@@ -9,7 +10,7 @@ export default class User extends Entity {
 
     constructor(object: any) {
         super(object);
-        this._auth = new Entity({ id: object.auth });
+        this._auth = makeRef(Auth, object.auth);
         this._name = ck.string(object.name);
     }
 
@@ -19,6 +20,13 @@ export default class User extends Entity {
 
     get name() {
         return this._name;
+    }
+
+    encode(): any {
+        return {
+            ...super.encode(),
+            auth: this.auth.encode(),
+        };
     }
 }
 
@@ -32,18 +40,21 @@ export async function createUser(
     const hash = hashedPassword.hash.toString('hex');
     const salt = hashedPassword.salt.toString('hex');
     const { reps } = hashedPassword;
-    const authId = await q.oneFirst(sql`
-            insert into "Auth" (hash, salt, reps)
-            values (decode(${hash}, 'hex'), decode(${salt}, 'hex'), ${reps})
-            returning id
-        `);
-    return new User(
+    const auth = new Auth(
         await q.one(sql`
-            insert into "User" (auth, name)
-            values (${authId}, ${params.name})
-            returning *
-        `),
+                insert into "Auth" (hash, salt, reps)
+                values (decode(${hash}, 'hex'), decode(${salt}, 'hex'), ${reps})
+                returning *
+            `),
     );
+    return new User({
+        ...(await q.one(sql`
+            insert into "User" (auth, name)
+            values (${auth.id}, ${params.name})
+            returning *
+        `)),
+        auth,
+    });
 }
 
 export async function getAllUsers(q: CommonQueryMethodsType) {

@@ -1,14 +1,14 @@
-import Entity from './Entity';
+import Entity, { makeRef } from './Entity';
+import User from './User';
 import { CommonQueryMethodsType, sql } from 'slonik';
 import { CreateTodoItem } from './TodoItem';
-import { User } from '../../gen/graphql';
 
 export default class TodoList extends Entity {
     private _owner: Entity;
 
     constructor(object: any) {
         super(object);
-        this._owner = new Entity({ id: object.owner });
+        this._owner = makeRef(User, object.owner);
     }
 
     get owner() {

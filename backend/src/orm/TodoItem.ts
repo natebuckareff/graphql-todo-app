@@ -1,5 +1,6 @@
 import * as ck from '../check';
-import Entity from './Entity';
+import Entity, { makeRef } from './Entity';
+import TodoList from './TodoList';
 import { CommonQueryMethodsType, sql } from 'slonik';
 
 export default class TodoItem extends Entity {
@@ -9,7 +10,7 @@ export default class TodoItem extends Entity {
 
     constructor(object: any) {
         super(object);
-        this._list = new Entity({ id: object.list });
+        this._list = makeRef(TodoList, object.list);
         this._completed = ck.boolean(object.completed);
         this._content = ck.string(object.content);
     }

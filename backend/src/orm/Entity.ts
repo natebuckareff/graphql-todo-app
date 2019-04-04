@@ -17,4 +17,23 @@ export default class Entity {
     get id() {
         return this._id;
     }
+
+    encode(): any {
+        return { id: this.id };
+    }
+
+    deref<R extends Entity>(ctor: new (...args: any[]) => R): R | undefined {
+        if (this instanceof ctor) {
+            return this as R;
+        } else {
+            return undefined;
+        }
+    }
+}
+
+export function makeRef<R extends Entity>(
+    ctor: new (...args: any[]) => R,
+    object: any,
+) {
+    return object instanceof ctor ? object : new Entity({ id: object });
 }

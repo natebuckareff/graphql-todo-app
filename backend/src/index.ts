@@ -2,6 +2,7 @@ import express = require('express');
 import pool from './pool';
 import resolvers from './resolvers';
 import { ApolloServer, gql } from 'apollo-server-express';
+import { EntitySet } from './ent';
 import { readFileSync } from 'fs';
 import { verifyAccessToken } from './auth';
 
@@ -11,7 +12,7 @@ const typeDefs = gql(
 
 const server = new ApolloServer({
     typeDefs,
-    resolvers,
+    resolvers: resolvers as any,
     context: async ({ req, res }) => {
         let access = undefined;
         if (req.headers.authorization) {
@@ -26,6 +27,7 @@ const server = new ApolloServer({
             }
         }
         return {
+            es: new EntitySet(),
             con: res.locals.con,
             access,
         };

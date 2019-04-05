@@ -5,4 +5,5 @@ copy package*.json ./
 run npm i
 copy ./src ./src
 copy ./codegen.yml .
+copy ./tsconfig.json .
 cmd ["npm", "run", "nodemon"]

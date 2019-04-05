@@ -1,20 +1,20 @@
 type User {
     id: ID!
-    name: String!
-    lists: [TodoList!]
+    name: String
+    lists: [TodoList]
 }
 
 type TodoList {
     id: ID!
     owner: User
-    items: [TodoItem!]
+    items: [TodoItem]
 }
 
 type TodoItem {
     id: ID!
     list: TodoList
-    completed: Boolean!
-    content: String!
+    completed: Boolean
+    content: String
 }
 
 input CreateTodoList {

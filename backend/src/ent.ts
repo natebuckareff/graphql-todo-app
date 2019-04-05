@@ -8,9 +8,18 @@ export type EntityQuery =
 
 export class Entity {
     private _id: string;
+    private fields: string[];
+    private refs: string[];
 
-    constructor(object: any, private eset?: EntitySet) {
+    constructor(
+        object: any,
+        protected eset: EntitySet,
+        fields: string[],
+        refs: string[] = [],
+    ) {
         this._id = object.id;
+        this.fields = ['id', ...refs, ...fields];
+        this.refs = refs;
     }
 
     get id() {
@@ -18,18 +27,22 @@ export class Entity {
     }
 
     getFields(): string[] {
-        return ['id'];
+        return this.fields;
     }
 
-    isRef(_field: string): boolean {
-        return false;
+    isRef(field: string): boolean {
+        return this.refs.includes(field);
     }
 
-    encode(query: any): any {
+    entitySet(): EntitySet {
+        return this.eset;
+    }
+
+    query(query: any): any {
         if (query === '*') {
-            return this.encode(this.getFields());
+            return this.query(this.getFields());
         } else if (typeof query === 'string') {
-            return (this as any)[query];
+            return { [query]: (this as any)[query] };
         } else {
             const o: { [field: string]: any } = {};
             if (Array.isArray(query)) {
@@ -39,7 +52,7 @@ export class Entity {
             } else {
                 for (const [k, v] of Object.entries(query)) {
                     if (this.isRef(k)) {
-                        o[k] = (this as any)[k].map((x: Entity) => x.encode(v));
+                        o[k] = (this as any)[k].map((x: Entity) => x.query(v));
                     } else {
                         o[k] = (this as any)[k];
                         if (o[k] instanceof Entity) {
@@ -60,10 +73,10 @@ export class EntitySet {
         ctor: RelationCtor<R>,
     ): Map<string, R> | undefined {
         const m = this.eset.get(ctor);
-        return m === undefined ? m : (m as Map<string, R>);
+        return m === undefined ? m : ((m as unknown) as Map<string, R>);
     }
 
-    fromOne<R extends Entity>(ctor: RelationCtor<R>, value: any) {
+    fromOne<R extends Entity>(ctor: RelationCtor<R>, value: any): R {
         const r = new ctor(value, this);
         let m = this.getMap(ctor);
         if (m === undefined) {
@@ -74,8 +87,18 @@ export class EntitySet {
         return r;
     }
 
-    fromMany<R extends Entity>(ctor: RelationCtor<R>, values: any[]) {
-        return values.map(x => this.fromOne(ctor, x));
+    fromOneMaybe<R extends Entity>(
+        ctor: RelationCtor<R>,
+        value: any,
+    ): R | undefined {
+        if (value === undefined) {
+            return value;
+        }
+        return this.fromOne(ctor, value);
+    }
+
+    fromMany<R extends Entity>(ctor: RelationCtor<R>, values: any[]): R[] {
+        return values.map(x => this.fromOne(ctor, x)!);
     }
 
     getOne<R extends Entity>(ctor: RelationCtor<R>, id: string): R | undefined {
